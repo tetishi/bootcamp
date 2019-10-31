@@ -83,4 +83,13 @@ class PracticesTest < ApplicationSystemTestCase
     assert_current_path course_practices_path(user.course)
     assert_equal "category-#{practice.category.id}", URI.parse(current_url).fragment
   end
+
+  test "change status" do
+    login_user "hatsuno", "testtest"
+    practice = practices(:practice_1)
+    visit "/practices/#{practice.id}"
+    first(".js-started").click
+    sleep 5
+    assert_equal "started", practice.status(users(:hatsuno))
+  end
 end
