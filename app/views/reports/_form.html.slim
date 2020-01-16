@@ -12,10 +12,18 @@
       .form-item
         = f.label :reported_on, class: "a-label"
         = f.date_field :reported_on, class: "a-text-input"
-      .form-item
-        = f.label :emotion, class: "a-label"
-        .a-button.is-md.is-secondary.is-select.test-select-emotions
-          = f.select(:emotion, Report.faces.invert, prompt: "選択してください")
+      .form-item.is-sm
+        label.a-label
+          = f.label :emotion
+        ul.form-item__radio-buttons.is-half
+          - Report.faces.each do |emotion_str, face|
+            li.form-radio-button.is-half
+              label.form-radio-button__label
+                = face
+                - if emotion_str == "soso"
+                  = f.radio_button :emotion, emotion_str, checked: true
+                - else
+                  = f.radio_button :emotion, emotion_str
 
       .form-item#tasks
         label.a-label
