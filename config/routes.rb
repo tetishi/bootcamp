@@ -82,11 +82,15 @@ Rails.application.routes.draw do
   resources :notifications, only: %i(index show) do
     collection do
       resources :allmarks, only: %i(create), controller: "notifications/allmarks"
+      resources :unread, only: %i(index), controller: "notifications/unread", path: :unread
     end
   end
   resources :works, except: %i(index)
-  resources :books, only: %i(show) do
+  resources :books, only: %i(index show) do
     resources :borrowings, only: %i(create destroy)
+    collection do
+      resources :search_results, only: %i(index), controller: "books/search_results"
+    end
   end
 
   resources :questions do
@@ -99,6 +103,9 @@ Rails.application.routes.draw do
   resource :inquiry, only: %i(new create)
 
   resources :articles
+  resources :events do
+    resources :participations, only: %i(create destroy), controller: "events/participations"
+  end
   get "articles/tags/:tag", to: "articles#index", as: :tag
 
   get "login" => "user_sessions#new", as: :login
