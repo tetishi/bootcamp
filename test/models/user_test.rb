@@ -140,4 +140,30 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 6, User.new(created_at: "2014-04-10 00:00:00").generation
     assert_equal 29, User.new(created_at: "2020-01-10 00:00:00").generation
   end
+
+  test "announcment for all" do
+    target = User.announcement("all")
+    assert_includes(target, users(:kimura))
+    assert_not_includes(target, users(:yameo))
+  end
+
+  test "announcment for active_users " do
+    target = User.announcement("active_users")
+    assert_includes(target, users(:kimura))
+    assert_includes(target, users(:komagata))
+    assert_not_includes(target, users(:yameo))
+    assert_not_includes(target, users(:sotugyou))
+    assert_not_includes(target, users(:yamada))
+    assert_not_includes(target, users(:advijirou))
+    assert_not_includes(target, users(:kensyu))
+  end
+
+  test "announcment for job_seekers" do
+    target = User.announcement("job_seeker")
+    assert_includes(target, users(:jobseeker))
+    assert_includes(target, users(:madajobseeker))
+    assert_includes(target, users(:komagata))
+    assert_not_includes(target, users(:kimura))
+    assert_not_includes(target, users(:yameo))
+  end
 end
