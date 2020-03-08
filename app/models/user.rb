@@ -125,6 +125,7 @@ class User < ActiveRecord::Base
   scope :in_school, -> { where(graduated_on: nil) }
   scope :graduated, -> { where.not(graduated_on: nil) }
   scope :retired, -> { where.not(retired_on: nil) }
+  scope :unretired, -> { where(retired_on: nil) }
   scope :advisers, -> { where(adviser: true) }
   scope :not_advisers, -> { where(adviser: false) }
   scope :students, -> {
@@ -134,6 +135,20 @@ class User < ActiveRecord::Base
       adviser: false,
       graduated_on: nil,
       retired_on: nil
+    )
+  }
+  scope :fjord_students, -> {
+    where(
+      admin: false,
+      mentor: false,
+      adviser: false,
+      trainee:  false
+    )
+  }
+  scope :active_fjord_students, -> {
+    fjord_students.where(
+      retired_on: nil,
+      graduated_on: nil
     )
   }
   scope :active, -> { where(updated_at: 1.month.ago..Float::INFINITY) }
@@ -157,6 +172,12 @@ class User < ActiveRecord::Base
   scope :admins, -> { where(admin: true) }
   scope :trainee, -> { where(trainee: true) }
   scope :job_seeking, -> { where(job_seeking: true) }
+  scope :job_seekers, -> {
+    fjord_students.where(
+      retired_on: nil,
+      job_seeker: true
+    )
+  }
   scope :order_by_counts, -> (order_by, direction) {
     unless order_by.in?(VALID_SORT_COLUMNS) && direction.in?(VALID_SORT_COLUMNS)
       raise ArgumentError, "Invalid argument"
@@ -337,6 +358,19 @@ SQL
 
   def participating?(event)
     participate_events.include?(event)
+  end
+
+  def self.announcement(target)
+    case target
+    when "all"
+      User.unretired
+    when "active_users"
+      User.admins.or(User.active_fjord_students)
+    when "job_seeker"
+      User.admins.or(User.job_seekers)
+    else
+      User.none
+    end
   end
 
   private
